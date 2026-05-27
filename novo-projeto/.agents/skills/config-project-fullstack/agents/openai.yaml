@@ -1,0 +1,4 @@
+interface:
+  display_name: "Config Project Fullstack"
+  short_description: "Scaffold Turbo Next.js and NestJS apps"
+  default_prompt: "Use $config-project-fullstack to configure a Turbo monorepo with Next.js frontend and NestJS backend."

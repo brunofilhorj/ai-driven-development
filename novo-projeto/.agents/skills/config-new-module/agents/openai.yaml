@@ -1,0 +1,4 @@
+interface:
+  display_name: "Config New Module"
+  short_description: "Cria módulos de negócio TypeScript no monorepo."
+  default_prompt: "Crie um novo módulo de negócio informando nome do módulo e namespace do pacote."

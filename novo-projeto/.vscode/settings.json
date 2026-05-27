@@ -1,0 +1,20 @@
+{
+  "files.exclude": {
+    "**/.next": false,
+    "**/.turbo": false,
+    "**/coverage": false,
+    "**/dist": false,
+    "**/node_modules": false,
+    "apps/*/src/**/*.d.ts": false,
+    "apps/*/src/**/*.js": false,
+    "apps/*/src/**/*.js.map": false,
+    "modules/*/tsconfig.tsbuildinfo": false
+  },
+  "search.exclude": {
+    "**/.next": false,
+    "**/.turbo": false,
+    "**/coverage": false,
+    "**/dist": false,
+    "**/node_modules": false
+  }
+}
