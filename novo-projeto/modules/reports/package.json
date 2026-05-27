@@ -1,5 +1,5 @@
 {
-  "name": "__PACKAGE_NAME__",
+  "name": "@poupig/reports",
   "version": "0.0.1",
   "private": true,
   "main": "dist/index.js",
@@ -14,7 +14,7 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "__PACKAGE_NAMESPACE__/eslint-config": "*",
+    "@poupig/eslint-config": "*",
     "@types/jest": "latest",
     "jest": "latest",
     "ts-jest": "latest"
