@@ -1,5 +1,5 @@
 {
-  "name": "@poupig/auth",
+  "name": "@poupig/shared",
   "version": "0.0.1",
   "private": true,
   "main": "dist/index.js",
@@ -18,8 +18,5 @@
     "@types/jest": "latest",
     "jest": "latest",
     "ts-jest": "latest"
-  },
-  "dependencies": {
-    "@poupig/shared": "*"
   }
 }

@@ -18,5 +18,8 @@
     "@types/jest": "latest",
     "jest": "latest",
     "ts-jest": "latest"
+  },
+  "dependencies": {
+    "@poupig/shared": "*"
   }
 }

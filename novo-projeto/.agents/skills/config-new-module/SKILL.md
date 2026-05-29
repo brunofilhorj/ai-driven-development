@@ -1,6 +1,6 @@
 ---
 name: config-new-module
-description: Cria um novo modulo de negocio TypeScript em monorepos com apps/frontend, apps/backend e modules/*. Use quando o usuario pedir para adicionar, configurar ou gerar um modulo reutilizavel em modules e, opcionalmente, integrar esse modulo ao frontend, ao backend ou aos dois apps.
+description: Cria um novo modulo TypeScript em monorepos com apps/frontend, apps/backend, modules/* e packages/*. Use quando o usuario pedir para adicionar, configurar ou gerar um modulo de negocio em modules/* ou um modulo compartilhado em packages/*.
 ---
 
 # Config New Module
@@ -10,8 +10,10 @@ description: Cria um novo modulo de negocio TypeScript em monorepos com apps/fro
 - Responder e registrar decisoes em portugues do Brasil.
 - Exigir o nome do modulo. Normalizar o nome para kebab-case antes de criar arquivos.
 - Exigir sempre o namespace do pacote. Nao executar esta skill se o namespace nao for informado.
-- Criar sempre o pacote reutilizavel em `modules/<nome-do-modulo>/`.
+- Criar modulos de negocio em `modules/<nome-do-modulo>/`.
+- Criar modulos compartilhados globais em `packages/<nome-do-modulo>/` quando o usuario pedir um modulo compartilhado entre frontend, backend e demais modulos, usando a flag `--shared`.
 - A criacao em `apps/frontend` e `apps/backend` e opcional. Quando o usuario pedir integracao em app, aceitar `frontend`, `backend` ou ambos ao mesmo tempo.
+- Modulos compartilhados em `packages/*` nao criam rota no frontend nem modulo local no backend; eles devem ser consumidos como dependencia.
 - Para criar em ambos os apps, usar `--app frontend --app backend` ou `--apps frontend,backend`.
 - A flag `--with-business-module` e mantida apenas por compatibilidade; o pacote em `modules/*` ja e obrigatorio.
 - Para pacote reutilizavel:
@@ -21,8 +23,15 @@ description: Cria um novo modulo de negocio TypeScript em monorepos com apps/fro
   - Criar o componente principal do modulo em `modules/<nome-do-modulo>/components/<nome-do-modulo>.component.tsx`.
   - Atualizar `apps/frontend/package.json` e `apps/backend/package.json` adicionando a dependencia `<namespace>/<nome-do-modulo>: "*"`.
   - Garantir `ts-node` em `devDependencies` do `package.json` da raiz. Se `ts-node` estiver em `dependencies`, mover para `devDependencies`.
-  - Garantir `"modules/*"` em `workspaces` do `package.json` da raiz.
+  - Garantir `"modules/*"` e `"packages/*"` em `workspaces` do `package.json` da raiz.
   - Executar instalacao das dependencias, build do projeto e testes do modulo criado.
+- Para modulo compartilhado em `packages/*`:
+  - Criar `packages/` caso a pasta ainda nao exista.
+  - Criar `packages/<nome-do-modulo>/` com os arquivos deterministicos de `assets/module-template/`.
+  - Atualizar `apps/frontend/package.json`, `apps/backend/package.json` e todos os `modules/*/package.json` adicionando a dependencia `<namespace>/<nome-do-modulo>: "*"`.
+  - Garantir `ts-node` em `devDependencies` do `package.json` da raiz. Se `ts-node` estiver em `dependencies`, mover para `devDependencies`.
+  - Garantir `"modules/*"` e `"packages/*"` em `workspaces` do `package.json` da raiz.
+  - Executar instalacao das dependencias, build do projeto e testes do pacote criado.
 - Para integracao no frontend:
   - Criar a rota privada do modulo em `apps/frontend/src/app/(private)/<nome-do-modulo>/page.tsx`.
   - A rota deve renderizar a pagina principal criada em `modules/<nome-do-modulo>/pages/<nome-do-modulo>.page.tsx`.
@@ -42,6 +51,30 @@ description: Cria um novo modulo de negocio TypeScript em monorepos com apps/fro
   - Executar instalacao das dependencias, build do projeto e testes do pacote de negocio criado.
 
 ## Execucao Padrao
+
+### Modulo compartilhado global em `packages/*`
+
+Use o script da skill a partir da raiz do projeto:
+
+```bash
+node .agents/skills/config-new-module/scripts/create-module.mjs --module <nome-do-modulo> --namespace <namespace> --shared
+```
+
+Exemplo:
+
+```bash
+node .agents/skills/config-new-module/scripts/create-module.mjs --module shared --namespace @meu-projeto --shared
+```
+
+O script:
+
+1. Valida `--namespace`, `--module` e `--shared`.
+2. Copia os assets para `packages/<nome-do-modulo>/`.
+3. Substitui `__PACKAGE_NAME__`, `__PACKAGE_NAMESPACE__` e `__MODULE_NAME__` nos arquivos copiados.
+4. Atualiza os `package.json` da raiz, frontend, backend e todos os modulos em `modules/*`.
+5. Executa `npm install`.
+6. Executa `npm run build`.
+7. Executa `npm test -w <namespace>/<nome-do-modulo>`.
 
 ### Apenas pacote reutilizavel em `modules/*`
 
@@ -157,6 +190,7 @@ O script:
 ## Excecoes
 
 - Se `modules/<nome-do-modulo>` ja existir, parar e pedir confirmacao antes de sobrescrever ou adaptar qualquer arquivo.
+- Se `packages/<nome-do-modulo>` ja existir, parar e pedir confirmacao antes de sobrescrever ou adaptar qualquer arquivo.
 - Se `apps/frontend/src/app/(private)/<nome-do-modulo>` ja existir, parar e pedir confirmacao antes de sobrescrever ou adaptar qualquer arquivo.
 - Se `apps/backend/src/modules/<nome-do-modulo>` ja existir, parar e pedir confirmacao antes de sobrescrever ou adaptar qualquer arquivo.
 - Se qualquer destino solicitado ja existir, parar antes de criar os demais destinos.

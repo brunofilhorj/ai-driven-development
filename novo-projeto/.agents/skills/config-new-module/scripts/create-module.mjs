@@ -16,6 +16,7 @@ process.on("uncaughtException", (error) => {
 function parseArgs(argv) {
   const args = {
     apps: [],
+    shared: false,
     skipInstall: false,
     skipBuild: false,
     skipTest: false,
@@ -31,6 +32,8 @@ function parseArgs(argv) {
       args.apps.push(argv[++index]);
     } else if (arg === "--apps") {
       args.apps.push(...argv[++index].split(","));
+    } else if (arg === "--shared" || arg === "--package") {
+      args.shared = true;
     } else if (arg === "--with-business-module" || arg === "--with-business") {
       continue;
     } else if (arg === "--skip-install") {
@@ -142,8 +145,13 @@ function ensureRootPackage(packageJsonPath) {
 
   if (!workspaces.includes("modules/*")) {
     workspaces.push("modules/*");
-    json.workspaces = workspaces;
   }
+
+  if (!workspaces.includes("packages/*")) {
+    workspaces.push("packages/*");
+  }
+
+  json.workspaces = workspaces;
 
   const currentTsNodeVersion = json.devDependencies?.["ts-node"] ?? json.dependencies?.["ts-node"] ?? "latest";
   json.devDependencies = json.devDependencies ?? {};
@@ -294,6 +302,61 @@ function createSharedModule(moduleName, namespace) {
   return `modules/${moduleName}`;
 }
 
+function listModulePackageJsonPaths() {
+  const modulesDir = join(projectRoot, "modules");
+
+  if (!existsSync(modulesDir)) {
+    return [];
+  }
+
+  return readdirSync(modulesDir)
+    .map((entry) => join(modulesDir, entry, "package.json"))
+    .filter((path) => existsSync(path));
+}
+
+function createPackageModule(moduleName, namespace) {
+  assertPackageNamespace(namespace);
+
+  const packageName = `${namespace}/${moduleName}`;
+  const packagesDir = join(projectRoot, "packages");
+  const moduleDir = join(packagesDir, moduleName);
+  const rootPackageJsonPath = join(projectRoot, "package.json");
+  const frontendPackageJsonPath = join(projectRoot, "apps", "frontend", "package.json");
+  const backendPackageJsonPath = join(projectRoot, "apps", "backend", "package.json");
+
+  assertFile(rootPackageJsonPath);
+  assertFile(frontendPackageJsonPath);
+  assertFile(backendPackageJsonPath);
+  assertPathDoesNotExist(moduleDir);
+
+  mkdirSync(packagesDir, { recursive: true });
+  copyTemplate(templateDir, moduleDir, {
+    __PACKAGE_NAME__: packageName,
+    __PACKAGE_NAMESPACE__: namespace,
+    __MODULE_NAME__: moduleName,
+  });
+
+  const constantName = `${moduleName.toUpperCase().replaceAll("-", "_")}_MODULE_NAME`;
+  writeFile(
+    join(moduleDir, "src", "index.ts"),
+    `const ${constantName} = "${moduleName}";\n\nfunction getSharedModuleName(): string {\n  return ${constantName};\n}\n\nexport { ${constantName}, getSharedModuleName };\n`,
+  );
+  writeFile(
+    join(moduleDir, "test", "index.test.ts"),
+    `import { ${constantName}, getSharedModuleName } from "../src/index";\n\ntest("Deve expor o nome do modulo compartilhado", () => {\n  expect(${constantName}).toBe("${moduleName}");\n  expect(getSharedModuleName()).toBe("${moduleName}");\n});\n`,
+  );
+
+  ensureRootPackage(rootPackageJsonPath);
+  addDependency(frontendPackageJsonPath, packageName);
+  addDependency(backendPackageJsonPath, packageName);
+
+  for (const packageJsonPath of listModulePackageJsonPaths()) {
+    addDependency(packageJsonPath, packageName);
+  }
+
+  return `packages/${moduleName}`;
+}
+
 function createFrontendFilesInSharedModule(moduleName, moduleDir) {
   const pascalName = toPascalCase(moduleName);
   const componentName = `${pascalName}Component`;
@@ -323,8 +386,9 @@ assertPackageNamespace(namespace);
 
 let createdPaths = [];
 const businessPackageName = `${namespace}/${moduleName}`;
+const packageRoot = args.shared ? "packages" : "modules";
 
-assertPathDoesNotExist(join(projectRoot, "modules", moduleName));
+assertPathDoesNotExist(join(projectRoot, packageRoot, moduleName));
 
 if (apps.includes("frontend")) {
   assertPathDoesNotExist(join(projectRoot, "apps", "frontend", "src", "app", "(private)", moduleName));
@@ -334,13 +398,23 @@ if (apps.includes("backend")) {
   assertPathDoesNotExist(join(projectRoot, "apps", "backend", "src", "modules", moduleName));
 }
 
-createdPaths.push(createSharedModule(moduleName, namespace));
+if (args.shared) {
+  createdPaths.push(createPackageModule(moduleName, namespace));
+} else {
+  createdPaths.push(createSharedModule(moduleName, namespace));
+}
 
 if (apps.includes("frontend")) {
+  if (args.shared) {
+    throw new Error("Modulos compartilhados em packages/* nao criam rota privada de frontend. Remova --app frontend.");
+  }
   createdPaths.push(createFrontendModule(moduleName));
 }
 
 if (apps.includes("backend")) {
+  if (args.shared) {
+    throw new Error("Modulos compartilhados em packages/* nao criam modulo local de backend. Remova --app backend.");
+  }
   createdPaths.push(createBackendModule(moduleName, businessPackageName));
 }
 
