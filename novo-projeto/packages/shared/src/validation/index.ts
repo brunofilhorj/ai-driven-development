@@ -1,6 +1,9 @@
-export { DomainError } from "./error/domain.error";
-export { NotFoundError } from "./error/not-found.error";
-export { UnauthorizedError } from "./error/unauthorized.error";
+export { FieldValidator } from "./field-validator.interface";
+export type { FieldValidationConfig, IFieldValidator } from "./field-validator.interface";
+export type { IValidation } from "./validation.interface";
+export { ValidationError } from "./validation-error";
+export { ValidationException } from "./validation-exception";
+export { Validator } from "./validator";
 export {
   AgeValidation,
   AlphanumericValidation,
@@ -9,7 +12,6 @@ export {
   DateValidation,
   DateFormatValidation,
   EmailValidation,
-  FieldValidator,
   FutureDateValidation,
   IntegerValidation,
   JsonValidation,
@@ -36,8 +38,4 @@ export {
   UniqueItemsValidation,
   UrlValidation,
   UuidValidation,
-  ValidationError,
-  ValidationException,
-  Validator,
-} from "./validation";
-export type { FieldValidationConfig, IFieldValidator, IValidation } from "./validation";
+} from "./rules";
