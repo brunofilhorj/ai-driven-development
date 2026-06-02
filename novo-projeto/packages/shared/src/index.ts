@@ -1,6 +1,8 @@
 export { DomainError } from "./error/domain.error";
 export { NotFoundError } from "./error/not-found.error";
 export { UnauthorizedError } from "./error/unauthorized.error";
+export { Entity } from "./model/entity";
+export type { EntityState } from "./model/entity";
 export {
   AgeValidation,
   AlphanumericValidation,

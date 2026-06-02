@@ -2,6 +2,7 @@ import {
   AlphanumericValidation,
   CnpjValidation,
   CpfValidation,
+  DateValidation,
   DateFormatValidation,
   FutureDateValidation,
   IntegerValidation,
@@ -13,12 +14,15 @@ import {
   MinValueValidation,
   NoCommonPasswordsValidation,
   NoWhitespaceValidation,
+  PasswordValidation,
   PasswordMatchValidation,
   PastDateValidation,
+  PersonalNameValidation,
   PhoneValidation,
   PositiveNumberValidation,
   PrecisionValidation,
   RegexValidation,
+  RequiredValidation,
   SlugValidation,
   StrongPasswordValidation,
   UniqueItemsValidation,
@@ -46,6 +50,8 @@ describe("string validations", () => {
     expect(validation.validate("https://example.com/path")).toBeNull();
     expect(validation.validate("ftp://example.com")).toBe("invalid_url");
     expect(validation.validate(" https://example.com")).toBe("invalid_url");
+    expect(validation.validate("http://")).toBe("invalid_url");
+    expect(validation.validate(123 as unknown as string)).toBe("invalid_url");
   });
 
   test("SlugValidation aceita slug canonico em minusculas", () => {
@@ -74,10 +80,26 @@ describe("string validations", () => {
 
   test("RegexValidation usa RegExp e errorCode customizados", () => {
     const validation = new RegexValidation(/^BR-\d{3}$/g, "invalid_code");
+    const throwingValidation = new RegexValidation(
+      {
+        get lastIndex() {
+          return 0;
+        },
+        set lastIndex(_value: number) {
+          throw new Error("pattern unavailable");
+        },
+        test() {
+          return true;
+        },
+      } as unknown as RegExp,
+      "invalid_code",
+    );
 
     expect(validation.validate("BR-123")).toBeNull();
     expect(validation.validate("US-123")).toBe("invalid_code");
     expect(validation.validate("BR-123")).toBeNull();
+    expect(validation.validate(123 as unknown as string)).toBe("invalid_code");
+    expect(throwingValidation.validate("BR-123")).toBe("invalid_code");
   });
 
   test("JsonValidation valida strings JSON brutas", () => {
@@ -102,16 +124,32 @@ describe("identifier validations", () => {
     const validation = new CpfValidation();
 
     expect(validation.validate("529.982.247-25")).toBeNull();
+    expect(validation.validate(52998224725 as unknown as string)).toBe("invalid_cpf");
     expect(validation.validate("529.982.247-26")).toBe("invalid_cpf");
     expect(validation.validate("111.111.111-11")).toBe("invalid_cpf");
+    expect(
+      validation.validate({
+        replace() {
+          throw new Error("cpf unavailable");
+        },
+      } as unknown as string),
+    ).toBe("invalid_cpf");
   });
 
   test("CnpjValidation valida digitos verificadores de CNPJ", () => {
     const validation = new CnpjValidation();
 
     expect(validation.validate("04.252.011/0001-10")).toBeNull();
+    expect(validation.validate(4252011000110 as unknown as string)).toBe("invalid_cnpj");
     expect(validation.validate("04.252.011/0001-11")).toBe("invalid_cnpj");
     expect(validation.validate("00.000.000/0000-00")).toBe("invalid_cnpj");
+    expect(
+      validation.validate({
+        replace() {
+          throw new Error("cnpj unavailable");
+        },
+      } as unknown as string),
+    ).toBe("invalid_cnpj");
   });
 
   test("PhoneValidation valida formato E.164", () => {
@@ -124,6 +162,14 @@ describe("identifier validations", () => {
 });
 
 describe("password validations", () => {
+  test("PasswordValidation exige tamanho minimo e numero", () => {
+    const validation = new PasswordValidation();
+
+    expect(validation.validate("senha123")).toBeNull();
+    expect(validation.validate("senhasemnumero")).toBe("invalid_password");
+    expect(validation.validate("abc12")).toBe("invalid_password");
+  });
+
   test("StrongPasswordValidation exige quatro categorias de caracteres", () => {
     const validation = new StrongPasswordValidation();
 
@@ -153,12 +199,22 @@ describe("password validations", () => {
 });
 
 describe("date validations", () => {
+  test("DateValidation aceita datas parseaveis e rejeita datas invalidas", () => {
+    const validation = new DateValidation();
+
+    expect(validation.validate("2024-01-01")).toBeNull();
+    expect(validation.validate(new Date("2024-01-01T00:00:00Z"))).toBeNull();
+    expect(validation.validate("data-invalida")).toBe("invalid_date");
+  });
+
   test("DateFormatValidation valida data ISO 8601 existente", () => {
     const validation = new DateFormatValidation();
 
     expect(validation.validate("2024-02-29")).toBeNull();
     expect(validation.validate("2024-02-30")).toBe("invalid_date_format");
     expect(validation.validate("2024-01-01T10:20:30Z")).toBeNull();
+    expect(validation.validate("2024/01/01")).toBe("invalid_date_format");
+    expect(validation.validate(20240101 as unknown as string)).toBe("invalid_date_format");
   });
 
   test("PastDateValidation exige data anterior a hoje", () => {
@@ -167,6 +223,8 @@ describe("date validations", () => {
     expect(validation.validate(isoDateFromToday(-1))).toBeNull();
     expect(validation.validate(isoDateFromToday(1))).toBe("not_past_date");
     expect(validation.validate(isoDateFromToday(0))).toBe("not_past_date");
+    expect(validation.validate("2024-02-30")).toBe("not_past_date");
+    expect(validation.validate(20240101 as unknown as string)).toBe("not_past_date");
   });
 
   test("FutureDateValidation exige data posterior a hoje", () => {
@@ -175,6 +233,8 @@ describe("date validations", () => {
     expect(validation.validate(isoDateFromToday(1))).toBeNull();
     expect(validation.validate(isoDateFromToday(-1))).toBe("not_future_date");
     expect(validation.validate(isoDateFromToday(0))).toBe("not_future_date");
+    expect(validation.validate("2024-02-30")).toBe("not_future_date");
+    expect(validation.validate(20240101 as unknown as string)).toBe("not_future_date");
   });
 
   test("MinimumAgeValidation valida idade minima por data de nascimento", () => {
@@ -183,6 +243,9 @@ describe("date validations", () => {
     expect(validation.validate(isoDateYearsAgo(18))).toBeNull();
     expect(validation.validate(isoDateYearsAgo(18, 1))).toBe("minimum_age");
     expect(validation.validate("2024-02-30")).toBe("minimum_age");
+    expect(validation.validate("01/01/2000")).toBe("minimum_age");
+    expect(validation.validate(20000101 as unknown as string)).toBe("minimum_age");
+    expect(new MinimumAgeValidation(-1).validate("2000-01-01")).toBe("minimum_age");
   });
 });
 
@@ -251,7 +314,30 @@ describe("array validations", () => {
     circular.push(circular);
 
     expect(validation.validate([{ id: 1 }, { id: 2 }])).toBeNull();
+    expect(validation.validate("items" as unknown as unknown[])).toBe("duplicate_items");
     expect(validation.validate([{ id: 1 }, { id: 1 }])).toBe("duplicate_items");
     expect(validation.validate(circular)).toBe("duplicate_items");
+  });
+});
+
+describe("required and personal validations", () => {
+  test("RequiredValidation aceita valores preenchidos e rejeita ausentes", () => {
+    const validation = new RequiredValidation();
+
+    expect(validation.validate("valor")).toBeNull();
+    expect(validation.validate(0)).toBeNull();
+    expect(validation.validate(false)).toBeNull();
+    expect(validation.validate("   ")).toBe("required");
+    expect(validation.validate(null)).toBe("required");
+    expect(validation.validate(undefined)).toBe("required");
+  });
+
+  test("PersonalNameValidation aceita nomes humanos simples", () => {
+    const validation = new PersonalNameValidation();
+
+    expect(validation.validate("Maria Silva")).toBeNull();
+    expect(validation.validate("Anne-Marie O'Neill")).toBeNull();
+    expect(validation.validate("Maria123")).toBe("invalid_personal_name");
+    expect(validation.validate(123 as unknown as string)).toBe("invalid_personal_name");
   });
 });

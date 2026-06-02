@@ -73,3 +73,14 @@ test("Deve manter compatibilidade com FieldValidator explicito", () => {
     "user.email.invalid_email",
   ]);
 });
+
+test("Deve buscar valor pelo ultimo segmento quando o caminho completo nao existir", () => {
+  const validator = new Validator([
+    {
+      fieldCode: "user.email",
+      validations: [new EmailValidation()],
+    },
+  ]);
+
+  expect(() => validator.validate({ email: "email@teste.com" })).not.toThrow();
+});
