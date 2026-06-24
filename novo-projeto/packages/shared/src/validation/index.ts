@@ -7,6 +7,7 @@ export { Validator } from "./validator";
 export {
   AgeValidation,
   AlphanumericValidation,
+  BcryptHashValidation,
   CnpjValidation,
   CpfValidation,
   DateValidation,
@@ -26,6 +27,7 @@ export {
   NoWhitespaceValidation,
   PasswordValidation,
   PasswordMatchValidation,
+  PersonNameValidation,
   PersonalNameValidation,
   PastDateValidation,
   PhoneValidation,

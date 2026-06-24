@@ -1,5 +1,6 @@
 export { AgeValidation } from "./age.validation";
 export { AlphanumericValidation } from "./alphanumeric.validation";
+export { BcryptHashValidation } from "./bcrypt-hash.validation";
 export { CnpjValidation } from "./cnpj.validation";
 export { CpfValidation } from "./cpf.validation";
 export { DateValidation } from "./date.validation";
@@ -19,6 +20,7 @@ export { NoCommonPasswordsValidation } from "./no-common-passwords.validation";
 export { NoWhitespaceValidation } from "./no-whitespace.validation";
 export { PasswordValidation } from "./password.validation";
 export { PasswordMatchValidation } from "./password-match.validation";
+export { PersonNameValidation } from "./person-name.validation";
 export { PersonalNameValidation } from "./personal-name.validation";
 export { PastDateValidation } from "./past-date.validation";
 export { PhoneValidation } from "./phone.validation";

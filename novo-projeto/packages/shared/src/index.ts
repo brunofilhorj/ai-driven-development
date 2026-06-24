@@ -17,6 +17,7 @@ export type { UseCase } from "./usecase/use-case";
 export {
   AgeValidation,
   AlphanumericValidation,
+  BcryptHashValidation,
   CnpjValidation,
   CpfValidation,
   DateValidation,
@@ -37,6 +38,7 @@ export {
   NoWhitespaceValidation,
   PasswordValidation,
   PasswordMatchValidation,
+  PersonNameValidation,
   PersonalNameValidation,
   PastDateValidation,
   PhoneValidation,

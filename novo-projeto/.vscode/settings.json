@@ -16,5 +16,10 @@
     "**/coverage": false,
     "**/dist": false,
     "**/node_modules": false
+  },
+  "material-icon-theme.folders.associations": {
+    "usecase": "contract",
+    "role": "rules",
+    "permission": "secure"
   }
 }
