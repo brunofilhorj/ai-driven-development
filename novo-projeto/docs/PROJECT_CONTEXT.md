@@ -27,6 +27,7 @@ para instalar `uuid`, já registrado no `package-lock.json`.
 | `.agents/skills/config-project-fullstack` | Instruções para criar ou padronizar o monorepo |
 | `.agents/skills/config-new-module` | Script e template para novos módulos |
 | `.codex/frontend-local.png` | Captura histórica do frontend inicial; o conteúdo real é JPEG |
+| `docs/code-conventions.md` | Convenções de nomenclatura, arquivos e testes |
 | `apps/frontend` | Rotas e composição da aplicação web |
 | `apps/backend` | Bootstrap, configuração e adaptadores HTTP NestJS |
 | `modules/auth` | Prova de integração de um módulo de negócio |
@@ -56,8 +57,9 @@ os módulos ficam em `packages/*`.
 - `GET /auth` e `GET /reports` comprovam o consumo dos workspaces pelo backend.
 - `/auth` e `/reports` comprovam o consumo das páginas dos módulos pelo
   frontend.
-- `packages/shared` contém uma entidade base, erros e um conjunto amplo de
-  validadores com testes.
+- `packages/shared` contém uma entidade base, erros, casos de uso e um conjunto
+  amplo de validadores; seus testes ficam em `test`, espelhando a estrutura de
+  `src`.
 - A skill `config-new-module` cria pacote, rota de frontend e módulo NestJS.
 
 ## Limites conhecidos
@@ -111,4 +113,3 @@ npm test
 npm run build
 git status --short
 ```
-

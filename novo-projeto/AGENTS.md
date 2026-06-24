@@ -1,7 +1,8 @@
 # Instruções para agentes
 
 Este repositório é um monorepo TypeScript fullstack em evolução. Antes de alterar
-código, leia `docs/PROJECT_CONTEXT.md` e preserve as decisões registradas ali.
+código, leia `docs/PROJECT_CONTEXT.md` e `docs/code-conventions.md`, preservando
+as decisões registradas nesses documentos.
 
 ## Estrutura
 
@@ -15,6 +16,8 @@ código, leia `docs/PROJECT_CONTEXT.md` e preserve as decisões registradas ali.
 ## Regras de trabalho
 
 - Responder e registrar decisões em português do Brasil.
+- Seguir as convenções de nomenclatura e organização registradas em
+  `docs/code-conventions.md`.
 - Não editar arquivos gerados em `dist`, `.next`, `.turbo`, `coverage` ou
   `node_modules`.
 - Para criar módulos, usar a skill
@@ -43,4 +46,3 @@ npm run build
 ```
 
 O script de lint do backend usa `--fix`; revise o diff depois de executá-lo.
-

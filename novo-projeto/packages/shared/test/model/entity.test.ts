@@ -7,7 +7,7 @@ import {
   UuidValidation,
   ValidationException,
   Validator,
-} from "../src/index";
+} from "../../src/index";
 
 interface UserState extends EntityState {
   name: string;

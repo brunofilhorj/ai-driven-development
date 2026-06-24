@@ -15,7 +15,7 @@ const config: Config = {
   },
   collectCoverageFrom: ["src/**/*.(t|j)s"],
   coverageDirectory: "./coverage",
-  roots: ["<rootDir>/src", "<rootDir>/test"],
+  roots: ["<rootDir>/test"],
   moduleNameMapper: {
     "^src/(.*)$": "<rootDir>/src/$1"
   }

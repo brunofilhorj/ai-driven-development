@@ -28,7 +28,7 @@ import {
   UniqueItemsValidation,
   UrlValidation,
   UuidValidation,
-} from "../src/index";
+} from "../../../src/index";
 
 function isoDateFromToday(dayOffset: number): string {
   const date = new Date();
