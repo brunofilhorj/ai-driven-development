@@ -27,11 +27,13 @@ describe('bootstrap', () => {
       listen: jest.fn().mockResolvedValue(undefined),
     };
     process.env.PORT = '5000';
-    jest.mocked(NestFactory.create).mockResolvedValue(app as never);
+    const createMock = jest
+      .spyOn(NestFactory, 'create')
+      .mockResolvedValue(app as never);
 
     await bootstrap();
 
-    expect(NestFactory.create).toHaveBeenCalledWith(AppModule);
+    expect(createMock).toHaveBeenCalledWith(AppModule);
     expect(app.enableCors).toHaveBeenCalled();
     expect(app.listen).toHaveBeenCalledWith('5000');
   });
@@ -42,7 +44,7 @@ describe('bootstrap', () => {
       listen: jest.fn().mockResolvedValue(undefined),
     };
     delete process.env.PORT;
-    jest.mocked(NestFactory.create).mockResolvedValue(app as never);
+    jest.spyOn(NestFactory, 'create').mockResolvedValue(app as never);
 
     await bootstrap();
 

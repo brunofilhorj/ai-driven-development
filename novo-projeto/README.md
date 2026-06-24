@@ -2,6 +2,10 @@
 
 Monorepo fullstack com Turbo, Next.js, NestJS e workspaces npm.
 
+Para retomar o desenvolvimento em uma nova maquina ou sessão, leia
+[`AGENTS.md`](./AGENTS.md) e
+[`docs/PROJECT_CONTEXT.md`](./docs/PROJECT_CONTEXT.md).
+
 ## Estrutura
 
 - `apps/frontend`: aplicação Next.js com App Router em `src/app`
@@ -16,6 +20,7 @@ npm run dev
 npm run build
 npm run lint
 npm run check-types
+npm test
 ```
 
 ## Ambiente

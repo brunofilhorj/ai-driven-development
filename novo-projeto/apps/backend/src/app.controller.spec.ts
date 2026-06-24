@@ -26,7 +26,10 @@ describe('AppController', () => {
         AppService: undefined,
       }));
 
-      const module = require('./app.controller') as typeof import('./app.controller');
+      const module =
+        jest.requireActual<typeof import('./app.controller')>(
+          './app.controller',
+        );
 
       expect(module.AppController).toBeDefined();
     });
