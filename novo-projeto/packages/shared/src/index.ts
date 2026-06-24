@@ -3,6 +3,16 @@ export { NotFoundError } from "./error/not-found.error";
 export { UnauthorizedError } from "./error/unauthorized.error";
 export { Entity } from "./model/entity";
 export type { EntityState } from "./model/entity";
+export type { CreateEntityRepository } from "./repository/create-entity.repository";
+export type { CrudRepository } from "./repository/crud.repository";
+export type { DeleteEntityRepository } from "./repository/delete-entity.repository";
+export type { FindByIdRepository } from "./repository/find-by-id.repository";
+export type {
+  FindWithPredicateRepository,
+  PaginatedResult,
+  PaginationInput,
+} from "./repository/find-with-predicate.repository";
+export type { UpdateEntityRepository } from "./repository/update-entity.repository";
 export type { UseCase } from "./usecase/use-case";
 export {
   AgeValidation,
